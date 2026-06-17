@@ -1,0 +1,110 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create venv and install packages
+        working-directory: app
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip -q
+          .venv/bin/python -m pip install -r requirements.txt
+
+      - name: MarkItDown health check
+        working-directory: app
+        run: .venv/bin/python scripts/health_markitdown.py
+
+      - name: Claude API health check
+        working-directory: app
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || 'https://api.anthropic.com' }}
+          CLAUDE_MODEL: claude-haiku-4-5-20251001
+        run: |
+          if [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "Skipping: ANTHROPIC_AUTH_TOKEN secret not set"
+            exit 0
+          fi
+          .venv/bin/python scripts/setup_env.py
+          .venv/bin/python scripts/health_claude.py
+
+      - name: Verify tool download URLs
+        working-directory: app
+        run: |
+          # Read VERSION CONFIG values from init.bat and verify each URL is reachable.
+          extract() { grep "^set $1=" init.bat | cut -d= -f2; }
+          WINPYTHON_URL=$(extract WINPYTHON_URL)
+          NODE_URL=$(extract NODE_URL)
+          MINGIT_URL=$(extract MINGIT_URL)
+          RG_URL=$(extract RG_URL)
+          JQ_URL=$(extract JQ_URL)
+          ok=true
+          for url in "$WINPYTHON_URL" "$NODE_URL" "$MINGIT_URL" "$RG_URL" "$JQ_URL"; do
+            code=$(curl -sfIL -o /dev/null -w "%{http_code}" "$url")
+            if [ "$code" = "200" ]; then
+              echo "  OK  $url"
+            else
+              echo "  FAIL ($code)  $url"
+              ok=false
+            fi
+          done
+          $ok
+
+      - name: Build app ZIP
+        run: ./dev/build_zip.sh
+
+      - name: Verify ZIP is non-empty
+        run: |
+          size=$(stat -f%z dist/portable_claude_env.zip 2>/dev/null || stat -c%s dist/portable_claude_env.zip)
+          echo "ZIP size: $size bytes"
+          [ "$size" -gt 10000 ]
+
+  validate-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create venv and install packages
+        working-directory: app
+        run: |
+          python -m venv .venv
+          .venv/Scripts/python.exe -m pip install --upgrade pip -q
+          .venv/Scripts/python.exe -m pip install -r requirements.txt
+
+      - name: MarkItDown health check
+        working-directory: app
+        run: .venv/Scripts/python.exe scripts/health_markitdown.py
+
+      - name: Verify npm global prefix
+        working-directory: app
+        run: |
+          mkdir -p tools/npm-global
+          export NPM_CONFIG_PREFIX="$(pwd)/tools/npm-global"
+          actual=$(npm config get prefix)
+          echo "npm prefix: $actual"
+          [ "$actual" = "$(pwd)/tools/npm-global" ]
+
+      - name: Claude API health check
+        working-directory: app
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || 'https://api.anthropic.com' }}
+          CLAUDE_MODEL: claude-haiku-4-5-20251001
+        run: |
+          if [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "Skipping: ANTHROPIC_AUTH_TOKEN secret not set"
+            exit 0
+          fi
+          .venv/Scripts/python.exe scripts/setup_env.py
+          .venv/Scripts/python.exe scripts/health_claude.py

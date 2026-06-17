@@ -1,0 +1,32 @@
+# Runtime — generated on user's machine, not committed
+.venv/
+.venv-*/
+python/
+node/
+output/
+__pycache__/
+*.pyc
+*.pyo
+
+# Portable tool binaries and version markers (populated by init.bat, not committed)
+tools/git/*
+tools/node/*
+tools/rg/*
+tools/jq/*
+tools/npm-global/
+!tools/**/.gitkeep
+
+# Downloaded tool archives
+*.zip
+WinPython*.zip
+node-v*.zip
+MinGit-*.zip
+ripgrep-*.zip
+
+# Secrets
+claude.env
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
