@@ -59,6 +59,10 @@ def _write_direct(token: str, host: str, model: str) -> None:
         f"# ── Model ─────────────────────────────────────────────────────\n"
         f'CLAUDE_MODEL="{model}"\n'
         f"\n"
+        f"# ── Claude Code compatibility ──────────────────────────────────\n"
+        f"# Disable experimental betas unsupported by custom API gateways\n"
+        f"CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1\n"
+        f"\n"
         f"# ── Optional: ffmpeg for audio/video conversion ────────────────\n"
         f"# FFMPEG_PATH=\"C:\\path\\to\\ffmpeg\\bin\"\n",
         encoding="utf-8",

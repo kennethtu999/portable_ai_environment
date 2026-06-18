@@ -52,7 +52,11 @@ def _write_direct(token: str, host: str, model: str) -> None:
         f'PROXY_TARGET_HOST="{host}"\n'
         f"\n"
         f"# ── Model ─────────────────────────────────────────────────────\n"
-        f'CLAUDE_MODEL="{model}"\n',
+        f'CLAUDE_MODEL="{model}"\n'
+        f"\n"
+        f"# ── Claude Code compatibility ──────────────────────────────────\n"
+        f"# Disable experimental betas unsupported by custom API gateways\n"
+        f"CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1\n",
         encoding="utf-8",
     )
     print(f"[env] Saved to: {ENV_FILE}")
