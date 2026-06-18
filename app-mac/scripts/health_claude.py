@@ -6,7 +6,7 @@ import time
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
-APP_DIR  = Path.home() / ".portable-markitdown-claude"
+APP_DIR  = Path.home() / ".portable_ai_environment"
 ENV_FILE = APP_DIR / "claude.env"
 
 if not ENV_FILE.exists():

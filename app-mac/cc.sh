@@ -2,7 +2,7 @@
 # Run from your project folder: ai-env/cc.sh
 # Claude opens with the current directory as its working directory.
 AIENV_DIR="$(cd "$(dirname "$0")" && pwd)"
-ENV_FILE="$HOME/.portable-markitdown-claude/claude.env"
+ENV_FILE="$HOME/.portable_ai_environment/claude.env"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "[error] claude.env not found. Run ai-env/init.sh first."

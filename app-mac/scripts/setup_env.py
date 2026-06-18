@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import getpass
 
-APP_DIR  = Path.home() / ".portable-markitdown-claude"
+APP_DIR  = Path.home() / ".portable_ai_environment"
 ENV_FILE = APP_DIR / "claude.env"
 
 APP_DIR.mkdir(parents=True, exist_ok=True)

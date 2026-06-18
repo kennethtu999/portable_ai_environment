@@ -39,7 +39,7 @@ podman pull %IMAGE% --quiet
 
 set CLAUDE_BLOCK=
 if defined ANTHROPIC_API_KEY (
-  set CLAUDE_BLOCK=echo [container] Step d: Claude health check... && mkdir -p $HOME/.portable-markitdown-claude && printf 'ANTHROPIC_API_KEY=%ANTHROPIC_API_KEY%\n' > $HOME/.portable-markitdown-claude/.env && .venv/bin/python scripts/health_claude.py
+  set CLAUDE_BLOCK=echo [container] Step d: Claude health check... && mkdir -p $HOME/.portable_ai_environment && printf 'ANTHROPIC_API_KEY=%ANTHROPIC_API_KEY%\n' > $HOME/.portable_ai_environment/.env && .venv/bin/python scripts/health_claude.py
 )
 
 echo [validate] Running bootstrap from ZIP in clean container...

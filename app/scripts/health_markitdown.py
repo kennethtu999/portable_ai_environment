@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from markitdown import MarkItDown
 
-ENV_FILE = Path.home() / ".portable-markitdown-claude" / "claude.env"
+ENV_FILE = Path.home() / ".portable_ai_environment" / "claude.env"
 if ENV_FILE.exists():
     load_dotenv(ENV_FILE)
     ffmpeg_path = os.getenv("FFMPEG_PATH", "").strip().strip('"')

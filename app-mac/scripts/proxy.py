@@ -6,12 +6,16 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-_ENV_FILE = Path.home() / ".portable-markitdown-claude" / "claude.env"
+_ENV_FILE = Path.home() / ".portable_ai_environment" / "claude.env"
 if _ENV_FILE.exists():
     load_dotenv(_ENV_FILE)
 
-TARGET_HOST = os.getenv("PROXY_TARGET_HOST", "")
-TARGET_SCHEME = "https"
+from urllib.parse import urlparse as _urlparse
+_raw = os.getenv("PROXY_TARGET_HOST", "")
+_parsed = _urlparse(_raw if "://" in _raw else "https://" + _raw)
+TARGET_HOST   = _parsed.hostname or ""
+TARGET_PORT   = _parsed.port or 443
+TARGET_PREFIX = _parsed.path.rstrip("/")
 PORT = int(os.getenv("PROXY_PORT", "8888"))
 
 MODEL_MAPPING = {
@@ -70,13 +74,14 @@ class ProxyHandler(BaseHTTPRequestHandler):
                 body = json.dumps(data).encode("utf-8")
 
             path = self.path if self.path.startswith("/") else "/" + self.path
+            path = TARGET_PREFIX + path
             headers = {k: v for k, v in self.headers.items() if k.lower() not in HOP_BY_HOP_HEADERS}
             headers["Host"] = TARGET_HOST
             headers["Connection"] = "close"
             headers["Content-Length"] = str(len(body or b""))
 
             self.log(f"→ {self.command} {path[:60]}")
-            conn = http.client.HTTPSConnection(TARGET_HOST, 443, timeout=600)
+            conn = http.client.HTTPSConnection(TARGET_HOST, TARGET_PORT, timeout=600)
             conn.request(self.command, path, body=body, headers=headers)
             resp = conn.getresponse()
             self.log(f"← {resp.status} {resp.reason}")
@@ -124,5 +129,5 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"Proxy running: http://localhost:{PORT}")
-    print(f"Target: https://{TARGET_HOST}")
+    print(f"Target: https://{TARGET_HOST}{TARGET_PREFIX}")
     ThreadingHTTPServer(("localhost", PORT), ProxyHandler).serve_forever()

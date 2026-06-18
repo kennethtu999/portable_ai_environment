@@ -55,7 +55,7 @@ First-run detection: presence of `.venv/Scripts/python.exe` (Windows) or `.venv/
 
 | Script | Purpose |
 |---|---|
-| `setup_env.py` | Interactive wizard saving connection config to `~/.portable-markitdown-claude/claude.env`. Skips if already configured. CI mode: reads from env vars. |
+| `setup_env.py` | Interactive wizard saving connection config to `~/.portable_ai_environment/claude.env`. Skips if already configured. CI mode: reads from env vars. |
 | `health_markitdown.py` | Converts `test_docs/sample.{docx,xlsx,pdf}` to markdown to verify MarkItDown install. |
 | `health_claude.py` | Sends `"reply OK"` to Claude API (starts proxy if needed) to verify connectivity. |
 | `proxy.py` | Local HTTP proxy that rewrites requests before forwarding to the target API gateway. |
@@ -71,7 +71,7 @@ The proxy rewrites outbound requests to handle target endpoint compatibility:
 
 ### Configuration File
 
-Stored at `~/.portable-markitdown-claude/claude.env`. Contains:
+Stored at `~/.portable_ai_environment/claude.env`. Contains:
 - `ANTHROPIC_AUTH_TOKEN` — the API token
 - `ANTHROPIC_BASE_URL` — either `http://127.0.0.1:{port}/v1` (proxy mode) or `https://{host}/v1` (direct mode)
 - `PROXY_TARGET_HOST`, `PROXY_PORT` — proxy routing config

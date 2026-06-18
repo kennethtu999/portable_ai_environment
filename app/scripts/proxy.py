@@ -7,12 +7,18 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-_ENV_FILE = Path.home() / ".portable-markitdown-claude" / "claude.env"
+_ENV_FILE = Path.home() / ".portable_ai_environment" / "claude.env"
 if _ENV_FILE.exists():
     load_dotenv(_ENV_FILE)
 
-TARGET_HOST = os.getenv("PROXY_TARGET_HOST", "")
-TARGET_SCHEME = "https"
+# Parse PROXY_TARGET_HOST — accepts bare hostname, host/path, or full URL
+# e.g. "https://api.example.com/abc" → host="api.example.com", prefix="/abc"
+from urllib.parse import urlparse as _urlparse
+_raw = os.getenv("PROXY_TARGET_HOST", "")
+_parsed = _urlparse(_raw if "://" in _raw else "https://" + _raw)
+TARGET_HOST   = _parsed.hostname or ""
+TARGET_PORT   = _parsed.port or 443
+TARGET_PREFIX = _parsed.path.rstrip("/")   # e.g. "/abc", or "" if none
 PORT = int(os.getenv("PROXY_PORT", "8888"))
 
 # Model mapping: 轉換客戶端請求的 model 參數到目標端允許的版本
@@ -90,6 +96,8 @@ class ProxyHandler(BaseHTTPRequestHandler):
             path = self.path
             if not path.startswith("/"):
                 path = "/" + path
+            # Prepend path prefix from PROXY_TARGET_HOST (e.g. /abc)
+            path = TARGET_PREFIX + path
 
             headers = {}
             for k, v in self.headers.items():
@@ -103,7 +111,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
             self.log(f"→ {self.command} {path[:60]}")
 
-            conn = http.client.HTTPSConnection(TARGET_HOST, 443, timeout=600)
+            conn = http.client.HTTPSConnection(TARGET_HOST, TARGET_PORT, timeout=600)
             conn.request(
                 method=self.command,
                 url=path,
@@ -166,5 +174,5 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"Proxy running: http://localhost:{PORT}")
-    print(f"Target: https://{TARGET_HOST}")
+    print(f"Target: https://{TARGET_HOST}{TARGET_PREFIX}")
     ThreadingHTTPServer(("localhost", PORT), ProxyHandler).serve_forever()

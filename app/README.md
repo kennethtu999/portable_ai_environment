@@ -97,14 +97,14 @@ claude
 2. 直接連線
 ```
 
-設定儲存於 `C:\Users\<帳號>\.portable-markitdown-claude\claude.env`，下次略過。
+設定儲存於 `C:\Users\<帳號>\.portable_ai_environment\claude.env`，下次略過。
 
 ---
 
 ## 常見問題
 
 **Q：想切換連線方式**
-→ 刪除 `C:\Users\<帳號>\.portable-markitdown-claude\claude.env`，重新執行 `ai-env\init.bat`。
+→ 刪除 `C:\Users\<帳號>\.portable_ai_environment\claude.env`，重新執行 `ai-env\init.bat`。
 
 **Q：想升級工具版本**
 → 修改 `ai-env\init.bat` 頂端 VERSION CONFIG 的版本號，重新執行 `ai-env\init.bat` 即可（舊版自動替換）。
@@ -140,7 +140,7 @@ ai-env/cc.sh
 | Node.js | 系統 node | 下載 portable tar.gz |
 | git / rg / jq | 系統已有 | `brew install` |
 
-設定儲存於 `~/.portable-markitdown-claude/claude.env`（同 Windows，跨專案共用）。
+設定儲存於 `~/.portable_ai_environment/claude.env`（同 Windows，跨專案共用）。
 
 **Q：想切換連線方式**
-→ 刪除 `~/.portable-markitdown-claude/claude.env`，重新執行 `ai-env/init.sh`。
+→ 刪除 `~/.portable_ai_environment/claude.env`，重新執行 `ai-env/init.sh`。

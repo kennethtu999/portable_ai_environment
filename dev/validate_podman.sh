@@ -16,7 +16,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="$REPO_DIR/dist"
-CACHE_DIR="$HOME/.portable-markitdown-claude"
+CACHE_DIR="$HOME/.portable_ai_environment"
 CID=""
 
 # ── VERSION CONFIG ─────────────────────────────────────────────────────────────

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-ENV_FILE = Path.home() / ".portable-markitdown-claude" / "claude.env"
+ENV_FILE = Path.home() / ".portable_ai_environment" / "claude.env"
 SCRIPTS_DIR = Path(__file__).parent
 
 if not ENV_FILE.exists():
