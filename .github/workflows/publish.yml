@@ -115,14 +115,15 @@ jobs:
           name: release-zips
           path: dist
 
-      # main push → update "latest" pre-release (floating tag, always downloadable)
-      - name: Publish latest pre-release
+      # main push → update floating "latest" release (non-prerelease so /releases/latest/download/ works)
+      - name: Publish latest release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Latest (main)
-          prerelease: true
+          prerelease: false
+          make_latest: false
           files: |
             dist/portable_claude_env.zip
             dist/portable_claude_env_mac.zip
