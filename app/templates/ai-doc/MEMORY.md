@@ -1,26 +1,23 @@
-# AI Memory
+# AI Memory (系統記憶與知識入口)
 
-## Load Order
+> **[重要指示]** 本文件為系統之「主動記憶區 (Active Memory)」，僅作為知識索引與載入提示，嚴禁在此記錄臨時性觀察或未驗證之資訊。
 
-1. 先讀 `AGENTS.md`
-2. 再讀本文件
-3. 依任務需要載入對應 topic
+## 1. Load Order (強制讀取順序)
+1. **系統底層守則**：優先讀取 `AGENTS.md` (或您最終命名的核心守則檔案)。
+2. **記憶索引**：讀取本文件 (`MEMORY.md`) 獲取當前知識庫狀態。
+3. **上下文載入**：依據當前任務需求，精準載入對應的 `topic` 檔案。
 
-## Workflow Anchor
+## 2. Workflow Anchor (工作流錨點)
+- **執行生命週期**：強制遵循 `create` -> `plan` -> `implement` 三階段按步執行。
+- **隔離觀察紀錄**：issue 執行中的「暫時觀察與測試軌跡」，強制隔離寫入對應目錄之 `impl.md`。
+- **延遲處理追蹤**：issue 執行中發現但「本次不處理」之新待辦事項，統一記錄於 `backlog.md`。
+- **知識提煉觸發**：處理遇阻卡關，且具備未來同類任務之通用價值時，需整理並回寫至對應之 `topic`。
 
-- issue 處理依 `create -> plan -> implement` 按步執行
-- issue 執行中的暫時觀察寫在對應 `impl.md`
-- issue 發現但本次不處理的新待辦寫在 `backlog.md`
-- 處理很卡且未來同類任務都需要知道時，整理回對應 topic
+## 3. Knowledge Entry (知識庫入口)
+- **Topic 存放路徑**：`ai-doc/topic/`
+- **Topic 撰寫規範**：建立或修改 topic 前，強制參考 `ai-doc/topic/topic_writing_rule.md`。
 
-## Knowledge Entry
-
-- topic 入口：`ai-doc/topic/`
-- topic 撰寫原則：`ai-doc/topic/topic_writing_rule.md`
-
-## Memory Rule
-
-- 本文件只保留正式知識入口與載入提示
-- topic files 承接單一主題、可重複使用的細節
-- 不得把暫時觀察直接寫入本文件或 topic
-- 僅可把有 codebase、文件、測試或實際輸出支撐的內容寫入記憶系統
+## 4. Memory Rules (記憶寫入嚴格守則)
+- **職責分離 (SoC)**：本文件僅保留「正式知識入口」與「載入提示」，嚴禁直接寫入業務邏輯或暫時觀察。
+- **主題收斂**：`topic files` 僅用於承接單一主題、具備可重複使用性之技術細節。
+- **證據支撐原則**：僅允許將具備 codebase、官方文件、測試通過或實際輸出支撐之「已驗證內容」寫入記憶系統。

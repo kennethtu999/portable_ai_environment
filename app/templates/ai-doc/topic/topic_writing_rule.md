@@ -1,41 +1,39 @@
-# Topic: Writing Rule
+# Topic Writing Rule (主題知識撰寫規範)
 
-## 結論
+> **[重要指示]** 本文件定義了 Topic 檔案的唯一撰寫標準。Topic 為系統級別之「長期重用知識」，所有寫入與提煉動作強制遵循以下約束。
 
-topic 用來承接單一主題、可重複使用的正式知識，不用來存放 issue 執行中的暫時觀察或未驗證推論。
+## 核心定位 (Core Intent)
+- Topic 專用於承載單一主題且具備「高度可重複使用性」的正式知識。
+- **嚴禁**將 Issue 執行過程中的暫時觀察、除錯 Log 或未驗證之推測寫入此類檔案。
 
-## Scope Rule
+## 1. Scope Constraints (領域與範圍約束)
+- **單一職責**：一份 Topic 強制僅承接單一業務或技術主題。
+- **純粹知識**：僅允許保留正式知識入口、Workflow Anchor 與已驗證之規則。
+- **隔離觀察**：Issue 執行中之任何暫時觀察與測試軌跡，**嚴禁**污染 Topic，應嚴格留存於 Issue 專屬之 `impl.md`。
+- **溯源限制**：歷史文件與對話紀錄僅作為追溯 (Traceability) 來源，絕不可直接作為正式知識之入口。
 
-- 一份 topic 只承接單一主題
-- 只保留正式知識入口、workflow anchor 與已驗證規則
-- issue 執行中的暫時觀察，不可直接寫入 topic
-- 歷史文件只能作 traceability 來源，不是正式知識入口
+## 2. Standard Structure (強制標準檔案結構)
+建立或更新 Topic 時，應具備以下區塊定義：
+- **`Summary`**：何時使用本 Topic、主要用途概述。
+- **`Core Intent`**：任務最終目的、目標受眾、預期輸出。
+- **`Thinking Path`**：固定且標準化之判讀與思考順序。
+- **`Negative Constraints`**：絕對不可提前做、不可擅自推論之邊界限制。
+- **`Workflow`**：實際執行之具體標準步驟。
+- **`Output Contract`**：回覆與產出時，強制交代與交付之最小資訊集合。
+- **`Rules`**：主題特有、需反覆套用之明確業務/工程規則。
+- **`Key Files`**：頻繁互動之關鍵檔案與絕對路徑。
+- **`Known Issues`**：已知之技術限制與未解問題。
 
-## Recommended Structure
+## 3. Evidence Requirements (證據支撐準則)
+- **單一事實來源**：僅允許以 Codebase 實際程式碼、官方正式文件、測試通過結果或實際系統輸出作為 Topic 內容的唯一依據。
+- **禁止無端推測**：無法從 Repo 內直接確認或重現之內容，**嚴禁**編撰或記載為已驗證之事實。
 
-- `Summary`：何時使用、主要用途
-- `Core Intent`：任務目的、讀者、預期輸出
-- `Thinking Path`：固定判讀順序
-- `Negative Constraints`：不可提前做、不可推論的事
-- `Workflow`：實際執行步驟
-- `Output Contract`：回覆時至少交代哪些資訊
-- `Rules`：主題特有、需反覆套用的明確規則
-- `Key Files`：常用關鍵路徑
-- `Known Issues`：已知限制
+## 4. Writing Style (精確撰寫風格)
+- **結論先行**：永遠先陳述結論，後補充原因與脈絡。
+- **可重用性描述**：強制使用「可重複套用之規則與條件」進行描述，絕不撰寫僅限單一 Issue 有效的一次性筆記。
+- **具體化原則**：必須精確引用實體路徑、檔案名稱與輸出契約，嚴禁使用模糊或抽象的口號。
 
-## Evidence Rule
-
-- 只有 codebase、正式文件、測試結果或實際輸出可作為 topic 內容依據
-- 無法從 repo 直接確認的內容，不可寫成已驗證事實
-
-## Writing Rule
-
-- 先講結論，再講原因
-- 用可重複套用的規則描述，不寫一次性 issue 筆記
-- 可引用路徑、檔名與輸出契約，避免抽象口號
-
-## Anti-Patterns
-
-- 把 issue 的暫時觀察直接寫進 topic
-- 在 create 階段提前定義 plan / implement 才會處理的內容
-- 只寫原則標語，不寫輸入、輸出、邊界與判讀順序
+## 5. Anti-Patterns (絕對禁止之反面模式)
+- ❌ 將 Issue 的暫時觀察、草稿、Log 紀錄直接搬移或複製進 Topic。
+- ❌ 在 `create` 階段越權，提前定義僅能在 `plan` 或 `implement` 階段才能獲取或確定的實作細節。
+- ❌ 僅撰寫「大原則」與「標語」，卻缺乏實質的輸入、輸出規範、邊界限制與固定判讀順序。
