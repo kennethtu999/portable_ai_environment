@@ -16,7 +16,7 @@ load_dotenv(ENV_FILE)
 
 api_key  = os.getenv("ANTHROPIC_AUTH_TOKEN")
 base_url = os.getenv("ANTHROPIC_BASE_URL")
-model    = os.getenv("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
+model    = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 
 if not api_key:
     raise SystemExit("[error] ANTHROPIC_AUTH_TOKEN is not set.")

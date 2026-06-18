@@ -93,7 +93,9 @@ echo "[health] Running Claude health check..."
 .venv/bin/python scripts/health_claude.py
 
 # ── Step 7: Claude CLI (local, no -g) ────────────────────────────────────────
-if [ ! -f "$AIENV_DIR/tools/npm-global/node_modules/.bin/claude" ]; then
+# Add local npm-global to PATH so command -v can find a previously local-installed claude
+export PATH="$AIENV_DIR/tools/npm-global/node_modules/.bin:$PATH"
+if ! command -v claude &>/dev/null; then
   echo "[setup] Installing Claude CLI..."
   mkdir -p "$AIENV_DIR/tools/npm-global"
   cd "$AIENV_DIR/tools/npm-global"

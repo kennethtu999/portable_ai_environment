@@ -7,7 +7,7 @@ ENV_FILE = APP_DIR / "claude.env"
 
 APP_DIR.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_MODEL       = "claude-haiku-4-5-20251001"
+DEFAULT_MODEL       = "claude-sonnet-4-6"
 DEFAULT_PROXY_HOST  = ""
 DEFAULT_PROXY_PORT  = "8888"
 

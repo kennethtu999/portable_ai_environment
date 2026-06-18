@@ -145,7 +145,9 @@ if errorlevel 1 (pause & exit /b 1)
 :: Step 9: Claude CLI install (local, no -g)
 call :setup_node_path
 
-if not exist "tools\npm-global\node_modules\.bin\claude.cmd" (
+:: Use system claude if available; install locally only when not found anywhere
+where claude >nul 2>&1
+if errorlevel 1 (
   where npm >nul 2>&1
   if errorlevel 1 (
     echo [error] npm not found. Cannot install Claude CLI.
