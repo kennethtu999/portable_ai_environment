@@ -1,6 +1,6 @@
 """
 用途：載入 .env、依模式啟動 proxy（若需要）、然後開啟 Claude CLI
-使用方式：由 panel.bat / panel.command 呼叫，不直接執行
+使用方式：由 cc.bat / cc.sh 呼叫，不直接執行
 """
 import os
 import shutil
@@ -20,9 +20,8 @@ if not ENV_FILE.exists():
 
 load_dotenv(ENV_FILE)
 
-api_key    = os.getenv("ANTHROPIC_AUTH_TOKEN") or os.getenv("ANTHROPIC_API_KEY", "")
-base_url   = os.getenv("ANTHROPIC_BASE_URL", "")
 auth_token = os.getenv("ANTHROPIC_AUTH_TOKEN", "")
+base_url   = os.getenv("ANTHROPIC_BASE_URL", "")
 
 # Start local proxy if proxy mode
 proxy_proc = None

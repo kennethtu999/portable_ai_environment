@@ -20,34 +20,44 @@ set JQ_URL=https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-windows-am
 :: ─────────────────────────────────────────────────────────────────────────────
 
 :: ── Step 1: Python (WinPython) ────────────────────────────────────────────────
+:: Find any WinPython-*.zip or WPy*.zip in current dir
+set WINPYTHON_ZIP=
+for %%f in (WinPython*.zip WPy*.zip) do (
+  if exist "%%f" set WINPYTHON_ZIP=%%f
+)
 if not exist "python\" (
-  if not exist "!WINPYTHON_FILE!" (
-    echo [setup] WinPython not found. Downloading !WINPYTHON_FILE!...
-    curl -L --progress-bar -o "!WINPYTHON_FILE!" "!WINPYTHON_URL!"
+  if not defined WINPYTHON_ZIP (
+    echo [setup] WinPython not found. Downloading...
+    curl -L --progress-bar -o WinPython.tmp.zip "!WINPYTHON_URL!"
     if errorlevel 1 (echo [error] Failed to download WinPython. & pause & exit /b 1)
+    set WINPYTHON_ZIP=WinPython.tmp.zip
   )
-  echo [setup] Extracting WinPython...
+  echo [setup] Extracting WinPython from !WINPYTHON_ZIP!...
   mkdir python
-  tar -xf "!WINPYTHON_FILE!" -C python
+  tar -xf "!WINPYTHON_ZIP!" -C python
   if errorlevel 1 (echo [error] Failed to extract WinPython. & pause & exit /b 1)
+  if "!WINPYTHON_ZIP!"=="WinPython.tmp.zip" del /f /q WinPython.tmp.zip
 )
 
 :: ── Step 2: Node.js → tools\node ─────────────────────────────────────────────
-:: Marker tracks installed version; bumping NODE_FILE triggers re-download.
-:: Node ZIP has a wrapper dir → strip-components=1 puts node.exe in tools\node\
-set NODE_MARKER=tools\node\.installed-%NODE_FILE%
-if not exist "!NODE_MARKER!" (
-  if not exist "!NODE_FILE!" (
-    echo [setup] Node.js not found. Downloading !NODE_FILE!...
-    curl -L --progress-bar -o "!NODE_FILE!" "!NODE_URL!"
+:: Find any node-v*.zip in current dir
+set NODE_ZIP=
+for %%f in (node-v*.zip) do (
+  if exist "%%f" set NODE_ZIP=%%f
+)
+if not exist "tools\node\node.exe" (
+  if not defined NODE_ZIP (
+    echo [setup] Node.js not found. Downloading...
+    curl -L --progress-bar -o node.tmp.zip "!NODE_URL!"
     if errorlevel 1 (echo [error] Failed to download Node.js. & pause & exit /b 1)
+    set NODE_ZIP=node.tmp.zip
   )
-  echo [setup] Extracting Node.js...
+  echo [setup] Extracting Node.js from !NODE_ZIP!...
   if exist tools\node rd /s /q tools\node
   mkdir tools\node
-  tar -xf "!NODE_FILE!" -C tools\node --strip-components=1
+  tar -xf "!NODE_ZIP!" -C tools\node --strip-components=1
   if errorlevel 1 (echo [error] Failed to extract Node.js. & pause & exit /b 1)
-  echo. > "!NODE_MARKER!"
+  if "!NODE_ZIP!"=="node.tmp.zip" del /f /q node.tmp.zip
 )
 
 :: ── Step 2.5: npm global prefix → tools\npm-global ──────────────────────────
@@ -55,49 +65,55 @@ if not exist "!NODE_MARKER!" (
 mkdir tools\npm-global 2>nul
 
 :: ── Step 3: MinGit → tools\git ───────────────────────────────────────────────
-:: MinGit ZIP is flat (cmd\git.exe at root) → no strip needed.
-set MINGIT_MARKER=tools\git\.installed-%MINGIT_FILE%
-if not exist "!MINGIT_MARKER!" (
-  if not exist "!MINGIT_FILE!" (
-    echo [setup] MinGit not found. Downloading !MINGIT_FILE!...
-    curl -L --progress-bar -o "!MINGIT_FILE!" "!MINGIT_URL!"
+:: Find any MinGit-*.zip in current dir (encoding-safe)
+set MINGIT_ZIP=
+for %%f in (MinGit-*.zip) do (
+  if exist "%%f" set MINGIT_ZIP=%%f
+)
+if not exist "tools\git\cmd\git.exe" (
+  if not defined MINGIT_ZIP (
+    echo [setup] MinGit not found. Downloading...
+    curl -L --progress-bar -o MinGit.tmp.zip "!MINGIT_URL!"
     if errorlevel 1 (echo [error] Failed to download MinGit. & pause & exit /b 1)
+    set MINGIT_ZIP=MinGit.tmp.zip
   )
-  echo [setup] Extracting MinGit...
+  echo [setup] Extracting MinGit from !MINGIT_ZIP!...
   if exist tools\git rd /s /q tools\git
   mkdir tools\git
-  tar -xf "!MINGIT_FILE!" -C tools\git
+  tar -xf "!MINGIT_ZIP!" -C tools\git
   if errorlevel 1 (echo [error] Failed to extract MinGit. & pause & exit /b 1)
-  echo. > "!MINGIT_MARKER!"
+  if "!MINGIT_ZIP!"=="MinGit.tmp.zip" del /f /q MinGit.tmp.zip
 )
 
 :: ── Step 4: ripgrep → tools\rg ───────────────────────────────────────────────
-:: ripgrep ZIP has a wrapper dir → strip-components=1 puts rg.exe in tools\rg\
-set RG_MARKER=tools\rg\.installed-%RG_FILE%
-if not exist "!RG_MARKER!" (
-  if not exist "!RG_FILE!" (
-    echo [setup] ripgrep not found. Downloading !RG_FILE!...
-    curl -L --progress-bar -o "!RG_FILE!" "!RG_URL!"
+:: Find any ripgrep-*.zip in current dir
+set RG_ZIP=
+for %%f in (ripgrep-*.zip) do (
+  if exist "%%f" set RG_ZIP=%%f
+)
+if not exist "tools\rg\rg.exe" (
+  if not defined RG_ZIP (
+    echo [setup] ripgrep not found. Downloading...
+    curl -L --progress-bar -o ripgrep.tmp.zip "!RG_URL!"
     if errorlevel 1 (echo [error] Failed to download ripgrep. & pause & exit /b 1)
+    set RG_ZIP=ripgrep.tmp.zip
   )
-  echo [setup] Extracting ripgrep...
+  echo [setup] Extracting ripgrep from !RG_ZIP!...
   if exist tools\rg rd /s /q tools\rg
   mkdir tools\rg
-  tar -xf "!RG_FILE!" -C tools\rg --strip-components=1
+  tar -xf "!RG_ZIP!" -C tools\rg --strip-components=1
   if errorlevel 1 (echo [error] Failed to extract ripgrep. & pause & exit /b 1)
-  echo. > "!RG_MARKER!"
+  if "!RG_ZIP!"=="ripgrep.tmp.zip" del /f /q ripgrep.tmp.zip
 )
 
 :: ── Step 5: jq → tools\jq ────────────────────────────────────────────────────
-:: Single exe download; marker tracks version.
-set JQ_MARKER=tools\jq\.installed-jq-%JQ_VERSION%
-if not exist "!JQ_MARKER!" (
+:: Single exe download; check if binary exists
+if not exist "tools\jq\jq.exe" (
   echo [setup] Downloading jq %JQ_VERSION%...
   if exist tools\jq rd /s /q tools\jq
   mkdir tools\jq
   curl -L --progress-bar -o "tools\jq\jq.exe" "!JQ_URL!"
   if errorlevel 1 (echo [error] Failed to download jq. & pause & exit /b 1)
-  echo. > "!JQ_MARKER!"
 )
 
 :: ── Step 6: venv + packages + MarkItDown health check (first run only) ────────
