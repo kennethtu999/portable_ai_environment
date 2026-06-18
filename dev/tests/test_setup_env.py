@@ -48,8 +48,20 @@ def write_proxy(env_file):
     safe_tree = ast.Module(body=safe_nodes, type_ignores=[])
     ast.fix_missing_locations(safe_tree)
 
-    ns = {"__builtins__": __builtins__, "ENV_FILE": env_file, "Path": Path}
-    exec(compile(safe_tree, "setup_env.py", "exec"), ns)
+    # Inject mocks so module-level `choice = input(...)` assignments don't block
+    def _raise_eof(prompt=""):
+        raise EOFError(prompt)
+
+    ns = {
+        "__builtins__": __builtins__,
+        "ENV_FILE": env_file,
+        "Path": Path,
+        "input": _raise_eof,
+    }
+    try:
+        exec(compile(safe_tree, "setup_env.py", "exec"), ns)
+    except (EOFError, SystemExit):
+        pass
     return ns["_write_proxy"], ns["_write_direct"], ns["_read_env"], env_file
 
 
