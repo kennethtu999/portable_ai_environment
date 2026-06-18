@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p _site
           cp app/ai-env-guide.md _site/
+          cp app/ai-env-guide.md app-mac/ai-env-guide.md
           cp app/README.md _site/windows-setup.md
           cp app-mac/README.md _site/mac-setup.md 2>/dev/null || cp app/README.md _site/mac-setup.md
           cat > _site/index.html << 'ENDOFHTML'
@@ -55,6 +56,12 @@ jobs:
           <body>
             <h1>Portable AI Terminal</h1>
             <p class="sub">Claude Code environment &middot; No admin rights &middot; No system installation</p>
+
+            <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:14px 18px;margin-bottom:2em">
+              <strong>&#x26A0;&#xFE0F; 環境建好後必做：</strong><br>
+              在 Claude 對話中執行 <code style="background:#eff6ff;padding:2px 6px;border-radius:4px">/init</code>，
+              然後請 Claude <strong>閱讀 <code>ai-env/ai-env-guide.md</code></strong>，使其了解可用工具與環境設定。
+            </div>
 
             <h2>Windows</h2>
             <pre>mkdir ai-env &amp;&amp; cd ai-env
