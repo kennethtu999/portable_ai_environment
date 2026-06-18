@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   validate-macos:
@@ -93,7 +94,9 @@ jobs:
           export NPM_CONFIG_PREFIX="$(pwd)/tools/npm-global"
           actual=$(npm config get prefix)
           echo "npm prefix: $actual"
-          [ "$actual" = "$(pwd)/tools/npm-global" ]
+          # npm returns Windows-style path (D:\...) while bash pwd returns /d/...
+          # Normalize backslash → forward slash and check suffix
+          echo "$actual" | tr '\\' '/' | grep -qi "tools/npm-global"
 
       - name: Claude API health check
         working-directory: app
@@ -108,3 +111,46 @@ jobs:
           fi
           .venv/Scripts/python.exe scripts/setup_env.py
           .venv/Scripts/python.exe scripts/health_claude.py
+
+  validate-mac-app:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Python and Node available
+        working-directory: app-mac
+        run: |
+          python3 --version
+          node --version || echo "No system node — portable fallback will be used"
+          command -v rg || brew install ripgrep
+          command -v jq || brew install jq
+
+      - name: Create venv and install packages
+        working-directory: app-mac
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip -q
+          .venv/bin/python -m pip install -r requirements.txt
+
+      - name: Claude API health check
+        working-directory: app-mac
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || 'https://api.anthropic.com' }}
+          CLAUDE_MODEL: claude-haiku-4-5-20251001
+        run: |
+          if [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "Skipping: ANTHROPIC_AUTH_TOKEN secret not set"
+            exit 0
+          fi
+          .venv/bin/python scripts/setup_env.py
+          .venv/bin/python scripts/health_claude.py
+
+      - name: Build macOS ZIP
+        run: ./dev/build_zip_mac.sh
+
+      - name: Verify macOS ZIP is non-empty
+        run: |
+          size=$(stat -f%z dist/portable_claude_env_mac.zip)
+          echo "ZIP size: $size bytes"
+          [ "$size" -gt 5000 ]

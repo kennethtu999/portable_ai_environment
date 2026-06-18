@@ -108,3 +108,39 @@ claude
 
 **Q：想升級工具版本**
 → 修改 `ai-env\init.bat` 頂端 VERSION CONFIG 的版本號，重新執行 `ai-env\init.bat` 即可（舊版自動替換）。
+
+---
+
+## macOS 快速設定
+
+**前置條件：** [Homebrew](https://brew.sh)（選用，git / ripgrep / jq 透過 brew 安裝）
+
+```bash
+# 進入你的專案資料夾
+cd my-project
+
+# 建立 ai-env 資料夾、下載並解壓環境
+mkdir ai-env && cd ai-env
+curl -L -o env.zip https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip
+tar -xf env.zip
+cd ..
+
+# 首次設定（偵測或下載 Python/Node.js，設定 API Token，驗證連線）
+ai-env/init.sh
+
+# 日常使用（從專案資料夾執行，Claude 在此運作）
+ai-env/cc.sh
+```
+
+`init.sh` 策略：
+
+| 工具 | 優先 | 備援 |
+|------|------|------|
+| Python | 系統 python3 ≥ 3.8 | `brew install python3` |
+| Node.js | 系統 node | 下載 portable tar.gz |
+| git / rg / jq | 系統已有 | `brew install` |
+
+設定儲存於 `~/.portable-markitdown-claude/claude.env`（同 Windows，跨專案共用）。
+
+**Q：想切換連線方式**
+→ 刪除 `~/.portable-markitdown-claude/claude.env`，重新執行 `ai-env/init.sh`。

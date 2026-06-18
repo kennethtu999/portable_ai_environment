@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Windows ZIP
+        run: ./dev/build_zip.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable_claude_env_win
+          path: dist/portable_claude_env.zip
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build macOS ZIP
+        run: ./dev/build_zip_mac.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable_claude_env_mac
+          path: dist/portable_claude_env_mac.zip
+
+  release:
+    needs: [build-windows, build-mac]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: portable_claude_env_win
+          path: dist
+
+      - name: Download macOS ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: portable_claude_env_mac
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/portable_claude_env.zip
+            dist/portable_claude_env_mac.zip

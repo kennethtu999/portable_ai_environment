@@ -1,0 +1,99 @@
+name: Validate Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0). Leave empty for latest.'
+        required: false
+        default: ''
+
+jobs:
+  validate-release-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Download Windows release ZIP
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            URL="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env.zip"
+          else
+            URL="https://github.com/kennethtu999/portable_ai_environment/releases/download/$TAG/portable_claude_env.zip"
+          fi
+          echo "Downloading: $URL"
+          curl -fL --progress-bar -o portable_claude_env.zip "$URL"
+          echo "Size: $(du -sh portable_claude_env.zip | cut -f1)"
+
+      - name: Extract ZIP
+        run: |
+          mkdir ai-env
+          tar -xf portable_claude_env.zip -C ai-env
+
+      - name: Create venv and install packages
+        working-directory: ai-env
+        run: |
+          python -m venv .venv
+          .venv/Scripts/python.exe -m pip install --upgrade pip -q
+          .venv/Scripts/python.exe -m pip install -r requirements.txt
+
+      - name: MarkItDown health check
+        working-directory: ai-env
+        run: .venv/Scripts/python.exe scripts/health_markitdown.py
+
+      - name: Claude API health check
+        working-directory: ai-env
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || 'https://api.anthropic.com' }}
+          CLAUDE_MODEL: claude-haiku-4-5-20251001
+        run: |
+          if [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "Skipping: ANTHROPIC_AUTH_TOKEN secret not set"
+            exit 0
+          fi
+          .venv/Scripts/python.exe scripts/setup_env.py
+          .venv/Scripts/python.exe scripts/health_claude.py
+
+  validate-release-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Download macOS release ZIP
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            URL="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip"
+          else
+            URL="https://github.com/kennethtu999/portable_ai_environment/releases/download/$TAG/portable_claude_env_mac.zip"
+          fi
+          echo "Downloading: $URL"
+          curl -fL --progress-bar -o portable_claude_env_mac.zip "$URL"
+          echo "Size: $(du -sh portable_claude_env_mac.zip | cut -f1)"
+
+      - name: Extract ZIP
+        run: |
+          mkdir ai-env
+          tar -xf portable_claude_env_mac.zip -C ai-env
+
+      - name: Create venv and install packages
+        working-directory: ai-env
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip -q
+          .venv/bin/python -m pip install -r requirements.txt
+
+      - name: Claude API health check
+        working-directory: ai-env
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || 'https://api.anthropic.com' }}
+          CLAUDE_MODEL: claude-haiku-4-5-20251001
+        run: |
+          if [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "Skipping: ANTHROPIC_AUTH_TOKEN secret not set"
+            exit 0
+          fi
+          .venv/bin/python scripts/setup_env.py
+          .venv/bin/python scripts/health_claude.py
