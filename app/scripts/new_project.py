@@ -30,11 +30,33 @@ FILES = [
 ]
 
 
+def ensure_gitignore(project_root: Path) -> None:
+    """Add ai-env to .gitignore if not already present."""
+    gitignore = project_root / ".gitignore"
+    entry = "ai-env"
+
+    if gitignore.exists():
+        lines = gitignore.read_text(encoding="utf-8").splitlines()
+        if any(line.strip() == entry for line in lines):
+            print(f"[skip]  .gitignore  (ai-env already listed)")
+            return
+        with gitignore.open("a", encoding="utf-8") as f:
+            if lines and lines[-1] != "":
+                f.write("\n")
+            f.write(f"{entry}\n")
+        print(f"[update] .gitignore  (added ai-env)")
+    else:
+        gitignore.write_text(f"{entry}\n", encoding="utf-8")
+        print(f"[create] .gitignore")
+
+
 def scaffold(project_root: Path, force: bool = False):
     project_root = project_root.resolve()
 
     print(f"[scaffold] Project root : {project_root}")
     print()
+
+    ensure_gitignore(project_root)
 
     created, skipped = [], []
 
