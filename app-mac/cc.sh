@@ -67,12 +67,14 @@ if ! command -v claude &>/dev/null; then
   mkdir -p "$AIENV_DIR/tools/npm-global"
   cd "$AIENV_DIR/tools/npm-global"
   npm install @anthropic-ai/claude-code
+  node node_modules/@anthropic-ai/claude-code/install.cjs
   cd - > /dev/null
   echo ""
 fi
 
+CLAUDE_BIN="$AIENV_DIR/tools/npm-global/node_modules/.bin/claude"
 echo "[next] Opening Claude... (working dir: $(pwd))"
-claude
+"$CLAUDE_BIN"
 
 if [ -n "$PROXY_PID" ]; then
   echo "[proxy] Stopping proxy..."

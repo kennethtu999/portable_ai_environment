@@ -108,6 +108,7 @@ if ! command -v claude &>/dev/null; then
   mkdir -p "$AIENV_DIR/tools/npm-global"
   cd "$AIENV_DIR/tools/npm-global"
   npm install @anthropic-ai/claude-code
+  node node_modules/@anthropic-ai/claude-code/install.cjs
   cd "$AIENV_DIR"
 fi
 
