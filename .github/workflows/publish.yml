@@ -1,0 +1,139 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ── Build ZIPs + generate docs site ──────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Windows ZIP
+        run: ./dev/build_zip.sh
+
+      - name: Build macOS ZIP
+        run: ./dev/build_zip_mac.sh
+
+      - name: Generate docs site
+        run: |
+          mkdir -p _site
+          cp app/ai-env-guide.md _site/
+          cat > _site/index.html << 'ENDOFHTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>Portable AI Terminal</title>
+            <style>
+              body{font-family:system-ui,sans-serif;max-width:640px;margin:60px auto;padding:0 24px;color:#24292f}
+              h1{font-size:1.8em;margin-bottom:.4em}
+              .sub{color:#57606a;margin-bottom:2em}
+              .dl{display:flex;gap:12px;margin-bottom:2.5em}
+              .btn{padding:10px 22px;background:#0969da;color:#fff;text-decoration:none;border-radius:6px;font-weight:500}
+              .btn:hover{background:#0860ca}
+              h2{font-size:.8em;text-transform:uppercase;letter-spacing:.06em;color:#57606a;margin:1.5em 0 .5em}
+              pre{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:14px;overflow-x:auto;font-size:.85em;line-height:1.6}
+              footer{margin-top:3em;padding-top:1em;border-top:1px solid #d0d7de;font-size:.85em;color:#57606a}
+              a{color:#0969da;text-decoration:none}
+            </style>
+          </head>
+          <body>
+            <h1>Portable AI Terminal</h1>
+            <p class="sub">Claude Code environment &middot; No admin rights &middot; No system installation</p>
+
+            <div class="dl">
+              <a class="btn" href="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env.zip">&#11015; Windows</a>
+              <a class="btn" href="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip">&#11015; macOS</a>
+            </div>
+
+            <h2>Windows</h2>
+            <pre>mkdir ai-env &amp;&amp; cd ai-env
+          curl -L -o env.zip https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env.zip
+          tar -xf env.zip &amp;&amp; cd ..
+          ai-env\init.bat</pre>
+
+            <h2>macOS</h2>
+            <pre>mkdir ai-env &amp;&amp; cd ai-env
+          curl -L -o env.zip https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip
+          tar -xf env.zip &amp;&amp; cd ..
+          ai-env/init.sh</pre>
+
+            <footer>
+              <a href="ai-env-guide.md">AI Guide</a> &nbsp;&middot;&nbsp;
+              <a href="https://github.com/kennethtu999/portable_ai_environment">GitHub</a>
+            </footer>
+          </body>
+          </html>
+          ENDOFHTML
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Upload ZIPs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zips
+          path: dist/
+
+  # ── Deploy GitHub Pages ───────────────────────────────────────────────────────
+  deploy-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+  # ── Publish to GitHub Releases ────────────────────────────────────────────────
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-zips
+          path: dist
+
+      # main push → update "latest" pre-release (floating tag, always downloadable)
+      - name: Publish latest pre-release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest (main)
+          prerelease: true
+          files: |
+            dist/portable_claude_env.zip
+            dist/portable_claude_env_mac.zip
+
+      # tag push (v1.2.3) → create stable versioned release
+      - name: Publish stable release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/portable_claude_env.zip
+            dist/portable_claude_env_mac.zip
