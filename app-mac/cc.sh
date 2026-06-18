@@ -21,6 +21,9 @@ if command -v brew &>/dev/null; then
   export PATH="$(brew --prefix)/bin:$PATH"
 fi
 
+# Claude installed locally under tools/npm-global/node_modules
+export PATH="$AIENV_DIR/tools/npm-global/node_modules/.bin:$PATH"
+
 # Show available tools
 echo ""
 echo "Portable AI Terminal Ready"
@@ -57,6 +60,16 @@ if echo "${ANTHROPIC_BASE_URL:-}" | grep -qE "127\.0\.0\.1|localhost"; then
 fi
 
 # ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL already loaded from env file
+
+# Auto-install Claude CLI if missing (local, no -g)
+if ! command -v claude &>/dev/null; then
+  echo "[setup] Claude CLI not found. Installing..."
+  mkdir -p "$AIENV_DIR/tools/npm-global"
+  cd "$AIENV_DIR/tools/npm-global"
+  npm install @anthropic-ai/claude-code
+  cd - > /dev/null
+  echo ""
+fi
 
 echo "[next] Opening Claude... (working dir: $(pwd))"
 claude

@@ -92,10 +92,13 @@ echo "[env] Checking API key..."
 echo "[health] Running Claude health check..."
 .venv/bin/python scripts/health_claude.py
 
-# ── Step 7: Claude CLI ────────────────────────────────────────────────────────
-if ! command -v claude &>/dev/null; then
+# ── Step 7: Claude CLI (local, no -g) ────────────────────────────────────────
+if [ ! -f "$AIENV_DIR/tools/npm-global/node_modules/.bin/claude" ]; then
   echo "[setup] Installing Claude CLI..."
-  npm install -g @anthropic-ai/claude-code
+  mkdir -p "$AIENV_DIR/tools/npm-global"
+  cd "$AIENV_DIR/tools/npm-global"
+  npm install @anthropic-ai/claude-code
+  cd "$AIENV_DIR"
 fi
 
 echo ""

@@ -1,4 +1,4 @@
-# AI Environment Guide
+# AI Environment Guide (macOS)
 
 This file is for AI assistants (Claude) to understand the tools available in this environment.
 
@@ -9,59 +9,58 @@ This file is for AI assistants (Claude) to understand the tools available in thi
 └── ai-env/                   ← This environment; all tools are under here
     ├── ai-env-guide.md       ← This file
     ├── tools/
-    │   ├── git/cmd/          ← MinGit  → git.exe
-    │   ├── node/             ← Node.js → node.exe, npm.cmd
-    │   ├── npm-global/       ← npm global packages → claude.cmd, etc.
-    │   ├── rg/               ← ripgrep → rg.exe
-    │   └── jq/               ← jq      → jq.exe
+    │   └── node/             ← Portable Node.js (fallback if system node absent)
     ├── .venv/                ← Python venv (internal use only)
     └── scripts/              ← Setup and health check scripts
 ```
 
-The terminal's working directory is the **project root** (parent of `ai-env\`).  
-All `git`, `node`, `rg`, `jq`, `claude` commands run relative to that folder.
+The terminal's working directory is the **project root** (parent of `ai-env/`).  
+All commands run relative to that folder.
 
 ## Tools in PATH
 
-After `cc.bat` is launched, the following commands are available:
+After `ai-env/cc.sh` is launched, the following commands are available:
 
-| Command  | Description                          | Base path in ai-env           |
-|----------|--------------------------------------|-------------------------------|
-| `git`    | MinGit — portable Git                | `tools\git\cmd\git.exe`       |
-| `node`   | Node.js runtime                      | `tools\node\node.exe`         |
-| `npm`    | Node package manager                 | `tools\node\npm.cmd`          |
-| `claude` | Claude Code CLI                      | `tools\npm-global\claude.cmd` |
-| `rg`     | ripgrep — fast file search           | `tools\rg\rg.exe`             |
-| `jq`     | JSON processor                       | `tools\jq\jq.exe`             |
+| Command  | Description                | Source                          |
+|----------|----------------------------|---------------------------------|
+| `git`    | Git                        | system / brew                   |
+| `node`   | Node.js runtime            | system / `tools/node/bin/node`  |
+| `npm`    | Node package manager       | system / `tools/node/bin/npm`   |
+| `claude` | Claude Code CLI            | `tools/npm-global/node_modules/.bin/claude` |
+| `rg`     | ripgrep — fast file search | system / brew                   |
+| `jq`     | JSON processor             | system / brew                   |
 
-## npm Global Packages
+## Claude CLI
 
-npm is configured to install global packages into `ai-env\tools\npm-global\`  
-(not the Windows system directory). This keeps the environment self-contained.
+Claude is installed locally under `ai-env/tools/npm-global/`:
 
-```powershell
-npm install -g <package>        # installs to ai-env\tools\npm-global\
+```bash
+cd ai-env/tools/npm-global
+npm install @anthropic-ai/claude-code
 ```
 
-The environment variable `NPM_CONFIG_PREFIX` is set automatically by `cc.bat`.
+`cc.sh` adds `tools/npm-global/node_modules/.bin` to PATH automatically.  
+If Claude is not found, `cc.sh` installs it automatically on first run.
 
 ## Python Environment
 
-The `.venv` is used internally by `init.bat` scripts (health checks, API key setup).  
+The `.venv` is for internal use by `init.sh` scripts (health checks, API key setup).  
 It is **not** added to PATH. To invoke Python directly:
 
-```powershell
-ai-env\.venv\Scripts\python.exe <script>
+```bash
+ai-env/.venv/bin/python <script>
 ```
+
+## Tool Priority
+
+| Tool   | Primary          | Fallback                    |
+|--------|------------------|-----------------------------|
+| Python | system python3   | `brew install python3`      |
+| Node   | system node      | portable `tools/node/`      |
+| git    | system git       | `brew install git`          |
+| rg     | system rg        | `brew install ripgrep`      |
+| jq     | system jq        | `brew install jq`           |
 
 ## Version Upgrades
 
-To upgrade any tool, update the version number in the `VERSION CONFIG` block  
-at the top of `ai-env\init.bat`, then re-run it. The old version is automatically  
-removed and replaced.
-
-## Environment Variables Set by cc.bat
-
-| Variable             | Value                          |
-|----------------------|--------------------------------|
-| `NPM_CONFIG_PREFIX`  | `<abs-path>\ai-env\tools\npm-global` |
+To upgrade portable Node.js, update `NODE_VERSION` in `ai-env/init.sh` and re-run it.

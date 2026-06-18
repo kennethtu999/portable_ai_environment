@@ -58,9 +58,15 @@ jobs:
             <p class="sub">Claude Code environment &middot; No admin rights &middot; No system installation</p>
 
             <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:14px 18px;margin-bottom:2em">
-              <strong>&#x26A0;&#xFE0F; 環境建好後必做：</strong><br>
-              在 Claude 對話中執行 <code style="background:#eff6ff;padding:2px 6px;border-radius:4px">/init</code>，
-              然後請 Claude <strong>閱讀 <code>ai-env/ai-env-guide.md</code></strong>，使其了解可用工具與環境設定。
+              <strong>&#x26A0;&#xFE0F; 環境建好後必做</strong>
+              <ol style="margin:.6em 0 .4em 1.2em;padding:0">
+                <li>在 Claude 對話中執行 <code style="background:#eff6ff;padding:2px 5px;border-radius:4px">/init</code></li>
+                <li>輸入以下 Prompt：
+                  <div style="background:#1e3a5f;color:#e2e8f0;border-radius:6px;padding:10px 14px;margin-top:6px;font-family:monospace;font-size:.9em;user-select:all">
+                    閱讀 ai-env/ai-env-guide.md，了解可用工具與環境設定
+                  </div>
+                </li>
+              </ol>
             </div>
 
             <h2>Windows</h2>
