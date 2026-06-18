@@ -23,7 +23,8 @@ def _read_env() -> dict:
 
 
 def _write_proxy(token: str, port: str, host: str, model: str) -> None:
-    base_url = f"http://127.0.0.1:{port}/v1"
+    # No path suffix — Anthropic SDK appends /v1/messages itself
+    base_url = f"http://127.0.0.1:{port}"
     ENV_FILE.write_text(
         f"# ── Connection ────────────────────────────────────────────────\n"
         f'ANTHROPIC_AUTH_TOKEN="{token}"\n'
@@ -44,7 +45,9 @@ def _write_proxy(token: str, port: str, host: str, model: str) -> None:
 
 
 def _write_direct(token: str, host: str, model: str) -> None:
-    base_url = f"https://{host}/v1"
+    # Accept bare host, host/path, or full URL — SDK appends /v1/messages itself
+    base_url = host if "://" in host else f"https://{host}"
+    base_url = base_url.rstrip("/")
     ENV_FILE.write_text(
         f"# ── Connection ────────────────────────────────────────────────\n"
         f'ANTHROPIC_AUTH_TOKEN="{token}"\n'
