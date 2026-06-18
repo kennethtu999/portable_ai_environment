@@ -56,7 +56,7 @@ def write_proxy(env_file):
 class TestWriteProxy:
     def test_base_url_is_localhost(self, write_proxy):
         _write_proxy, _, _, env_file = write_proxy
-        _write_proxy("token123", "8889", "api.example.com/ica", "claude-haiku-4-5-20251001")
+        _write_proxy("token123", "8889", "api.example.com/abc", "claude-haiku-4-5-20251001")
         content = env_file.read_text()
         assert "ANTHROPIC_BASE_URL=\"http://127.0.0.1:8889\"" in content
 
@@ -67,8 +67,8 @@ class TestWriteProxy:
 
     def test_proxy_target_host_saved(self, write_proxy):
         _write_proxy, _, _, env_file = write_proxy
-        _write_proxy("tok", "8888", "api.example.com/ica", "model")
-        assert 'PROXY_TARGET_HOST="api.example.com/ica"' in env_file.read_text()
+        _write_proxy("tok", "8888", "api.example.com/abc", "model")
+        assert 'PROXY_TARGET_HOST="api.example.com/abc"' in env_file.read_text()
 
     def test_proxy_port_saved(self, write_proxy):
         _write_proxy, _, _, env_file = write_proxy
@@ -79,8 +79,8 @@ class TestWriteProxy:
 class TestWriteDirect:
     def test_full_url_used_as_base(self, write_proxy):
         _, _write_direct, _, env_file = write_proxy
-        _write_direct("tok", "https://api.example.com/ica", "model")
-        assert 'ANTHROPIC_BASE_URL="https://api.example.com/ica"' in env_file.read_text()
+        _write_direct("tok", "https://api.example.com/abc", "model")
+        assert 'ANTHROPIC_BASE_URL="https://api.example.com/abc"' in env_file.read_text()
 
     def test_bare_host_gets_https(self, write_proxy):
         _, _write_direct, _, env_file = write_proxy
@@ -89,14 +89,14 @@ class TestWriteDirect:
 
     def test_host_with_path_no_scheme(self, write_proxy):
         _, _write_direct, _, env_file = write_proxy
-        _write_direct("tok", "api.example.com/ica", "model")
-        assert 'ANTHROPIC_BASE_URL="https://api.example.com/ica"' in env_file.read_text()
+        _write_direct("tok", "api.example.com/abc", "model")
+        assert 'ANTHROPIC_BASE_URL="https://api.example.com/abc"' in env_file.read_text()
 
     def test_trailing_slash_stripped(self, write_proxy):
         _, _write_direct, _, env_file = write_proxy
-        _write_direct("tok", "https://api.example.com/ica/", "model")
+        _write_direct("tok", "https://api.example.com/abc/", "model")
         content = env_file.read_text()
-        assert 'ANTHROPIC_BASE_URL="https://api.example.com/ica"' in content
+        assert 'ANTHROPIC_BASE_URL="https://api.example.com/abc"' in content
 
 
 class TestReadEnv:

@@ -54,6 +54,29 @@ It is **not** added to PATH. To invoke Python directly:
 ai-env\.venv\Scripts\python.exe <script>
 ```
 
+## New Project Scaffold
+
+Initialize AI collaboration docs for a new project (run once per project):
+
+```powershell
+ai-env\new-project.bat
+# or with custom project path:
+ai-env\new-project.bat C:\path\to\project
+# overwrite existing files:
+ai-env\new-project.bat --force
+```
+
+Creates in project root:
+
+```
+AGENTS.md                       <- collaboration rules (Codex / Cursor / Claude)
+CLAUDE.md                       <- technical context + @AGENTS.md
+ai-doc/
+  MEMORY.md                     <- Claude knowledge index
+  topic/
+    topic_writing_rule.md
+```
+
 ## Document Conversion
 
 Convert documents (docx, xlsx, pdf, pptx, html, csv) to Markdown:

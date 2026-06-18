@@ -1,6 +1,6 @@
 from pathlib import Path
+import json
 import os
-import getpass
 
 APP_DIR = Path.home() / ".portable_ai_environment"
 ENV_FILE = APP_DIR / "claude.env"
@@ -96,7 +96,7 @@ print()
 
 choice = input("Choice [1]: ").strip() or "1"
 
-token = getpass.getpass("Enter API token: ").strip()
+token = input("Enter API token: ").strip()
 if not token:
     raise SystemExit("[error] API token is required.")
 
@@ -109,3 +109,20 @@ elif choice == "2":
     _write_direct(token, host_input, DEFAULT_MODEL)
 else:
     raise SystemExit("[error] Invalid choice.")
+
+# Set default Claude Code model — only in CI mode (env vars set).
+# Interactive installs skip this: model availability depends on the gateway,
+# so let users pick via /model after first launch.
+if env_auth_token and env_base_url:
+    _claude_settings = Path.home() / ".claude" / "settings.json"
+    _claude_settings.parent.mkdir(parents=True, exist_ok=True)
+    _settings = {}
+    if _claude_settings.exists():
+        try:
+            _settings = json.loads(_claude_settings.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if "model" not in _settings:
+        _settings["model"] = "claude-sonnet-4-6[1m]"
+        _claude_settings.write_text(json.dumps(_settings, indent=2), encoding="utf-8")
+        print("[env] Default Claude model set: claude-sonnet-4-6[1m]")

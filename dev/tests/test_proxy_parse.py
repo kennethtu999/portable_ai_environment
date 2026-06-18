@@ -17,15 +17,15 @@ def _parse_target(raw: str):
 
 class TestTargetParsing:
     def test_full_url(self):
-        r = _parse_target("https://api.example.com/ica")
+        r = _parse_target("https://api.example.com/abc")
         assert r["host"] == "api.example.com"
         assert r["port"] == 443
-        assert r["prefix"] == "/ica"
+        assert r["prefix"] == "/abc"
 
     def test_host_and_path_no_scheme(self):
-        r = _parse_target("api.example.com/ica")
+        r = _parse_target("api.example.com/abc")
         assert r["host"] == "api.example.com"
-        assert r["prefix"] == "/ica"
+        assert r["prefix"] == "/abc"
 
     def test_bare_hostname(self):
         r = _parse_target("api.example.com")
@@ -33,9 +33,9 @@ class TestTargetParsing:
         assert r["prefix"] == ""
 
     def test_custom_port(self):
-        r = _parse_target("https://api.example.com:8443/ica")
+        r = _parse_target("https://api.example.com:8443/abc")
         assert r["port"] == 8443
-        assert r["prefix"] == "/ica"
+        assert r["prefix"] == "/abc"
 
     def test_empty_string(self):
         r = _parse_target("")
@@ -47,8 +47,8 @@ class TestTargetParsing:
         assert r["prefix"] == "/a/b/c"
 
     def test_trailing_slash_stripped(self):
-        r = _parse_target("https://api.example.com/ica/")
-        assert r["prefix"] == "/ica"
+        r = _parse_target("https://api.example.com/abc/")
+        assert r["prefix"] == "/abc"
 
 
 # ── Path rewriting ────────────────────────────────────────────────────────────
@@ -60,13 +60,13 @@ class TestPathRewriting:
         return prefix + path
 
     def test_prefix_prepended(self):
-        assert self._rewrite("/ica", "/v1/messages") == "/ica/v1/messages"
+        assert self._rewrite("/abc", "/v1/messages") == "/abc/v1/messages"
 
     def test_empty_prefix(self):
         assert self._rewrite("", "/v1/messages") == "/v1/messages"
 
     def test_path_without_leading_slash(self):
-        assert self._rewrite("/ica", "v1/messages") == "/ica/v1/messages"
+        assert self._rewrite("/abc", "v1/messages") == "/abc/v1/messages"
 
 
 # ── Request body rewriting ────────────────────────────────────────────────────
