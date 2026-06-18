@@ -13,14 +13,14 @@ NODE_ARCH=$([ "$ARCH" = "arm64" ] && echo "darwin-arm64" || echo "darwin-x64")
 NODE_FILE="node-${NODE_VERSION}-${NODE_ARCH}.tar.gz"
 NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/${NODE_FILE}"
 
-# ── Step 1: Python (system first, brew fallback) ──────────────────────────────
+# ── Step 1: Python (system >= 3.10 preferred, else brew fallback) ─────────────
 PYTHON_CMD=""
 for cmd in python3 python; do
   if command -v "$cmd" &>/dev/null; then
     ver=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
     major=$(echo "$ver" | cut -d. -f1)
     minor=$(echo "$ver" | cut -d. -f2)
-    if [ "${major:-0}" -ge 3 ] && [ "${minor:-0}" -ge 8 ] 2>/dev/null; then
+    if [ "${major:-0}" -ge 3 ] && [ "${minor:-0}" -ge 10 ] 2>/dev/null; then
       PYTHON_CMD="$cmd"
       break
     fi
@@ -29,25 +29,33 @@ done
 
 if [ -z "$PYTHON_CMD" ]; then
   if command -v brew &>/dev/null; then
-    echo "[setup] Python 3.8+ not found. Installing via brew..."
+    echo "[setup] Python 3.10+ not found. Installing via brew..."
     brew install python3
     PYTHON_CMD=python3
   else
-    echo "[error] Python 3.8+ not found and brew is not available."
+    echo "[error] Python 3.10+ not found and brew is not available."
     echo "[info]  Install Python from https://www.python.org/ or brew from https://brew.sh"
     exit 1
   fi
 fi
-echo "[setup] Python: $($PYTHON_CMD --version)"
+echo "[setup] Python: $($PYTHON_CMD --version) (system)"
 
-# ── Step 2: Node.js (system first, portable fallback) ─────────────────────────
+# ── Step 2: Node.js (system >= 24 preferred, else portable fallback) ──────────
 NODE_MARKER="tools/node/.installed-${NODE_FILE}"
+_use_system_node=false
 if command -v node &>/dev/null; then
+  _node_major=$(node --version 2>/dev/null | grep -oE '[0-9]+' | head -1)
+  if [ "${_node_major:-0}" -ge 24 ]; then
+    _use_system_node=true
+  fi
+fi
+
+if [ "$_use_system_node" = true ]; then
   echo "[setup] Node.js: $(node --version) (system)"
 else
   if [ ! -f "$NODE_MARKER" ]; then
     if [ ! -f "$NODE_FILE" ]; then
-      echo "[setup] Node.js not found. Downloading ${NODE_FILE}..."
+      echo "[setup] Node.js not found or < 24. Downloading ${NODE_FILE}..."
       curl -L --progress-bar -o "$NODE_FILE" "$NODE_URL"
     fi
     echo "[setup] Extracting Node.js..."

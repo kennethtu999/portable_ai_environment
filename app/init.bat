@@ -178,19 +178,22 @@ exit /b 0
 
 :detect_python
 set PYTHON_CMD=
+:: Priority 1: WinPython (bundled under python\)
 for /f "delims=" %%f in ('where /r python python.exe 2^>nul') do (
   if "!PYTHON_CMD!"=="" set PYTHON_CMD=%%f
 )
 if defined PYTHON_CMD exit /b 0
-where py >nul 2>&1
-if not errorlevel 1 (
-  py -3 --version >nul 2>&1
-  if not errorlevel 1 set PYTHON_CMD=py -3
+:: Priority 2: system Python >= 3.10
+for %%c in (py python3 python) do (
+  if not defined PYTHON_CMD (
+    where %%c >nul 2>&1
+    if not errorlevel 1 (
+      for /f "tokens=2 delims= " %%v in ('%%c --version 2^>^&1') do (
+        for /f "tokens=1,2 delims=." %%a in ("%%v") do (
+          if %%a geq 3 if %%b geq 10 set PYTHON_CMD=%%c
+        )
+      )
+    )
+  )
 )
-if defined PYTHON_CMD exit /b 0
-where python3 >nul 2>&1
-if not errorlevel 1 set PYTHON_CMD=python3
-if defined PYTHON_CMD exit /b 0
-where python >nul 2>&1
-if not errorlevel 1 set PYTHON_CMD=python
 exit /b 0
