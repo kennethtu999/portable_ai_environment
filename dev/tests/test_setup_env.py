@@ -48,13 +48,12 @@ def write_proxy(env_file):
     safe_tree = ast.Module(body=safe_nodes, type_ignores=[])
     ast.fix_missing_locations(safe_tree)
 
-    # Inject mocks so module-level `choice = input(...)` assignments don't block
+    # Inject mock so module-level `choice = input(...)` assignments don't block
     def _raise_eof(prompt=""):
         raise EOFError(prompt)
 
     ns = {
         "__builtins__": __builtins__,
-        "ENV_FILE": env_file,
         "Path": Path,
         "input": _raise_eof,
     }
@@ -62,6 +61,13 @@ def write_proxy(env_file):
         exec(compile(safe_tree, "setup_env.py", "exec"), ns)
     except (EOFError, SystemExit):
         pass
+
+    # Override ENV_FILE *after* exec — the module sets it to Path.home()/...
+    # which overwrites whatever we pre-injected; functions look up globals at
+    # call time, so setting it here redirects all reads/writes to the temp file.
+    ns["ENV_FILE"] = env_file
+    ns["APP_DIR"] = env_file.parent
+
     return ns["_write_proxy"], ns["_write_direct"], ns["_read_env"], env_file
 
 
