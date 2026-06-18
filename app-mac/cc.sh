@@ -56,11 +56,7 @@ if echo "${ANTHROPIC_BASE_URL:-}" | grep -qE "127\.0\.0\.1|localhost"; then
   echo "[proxy] Proxy running at $ANTHROPIC_BASE_URL"
 fi
 
-# Claude CLI uses ANTHROPIC_API_KEY
-if [ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
-  export ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN"
-  unset ANTHROPIC_AUTH_TOKEN
-fi
+# ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL already loaded from env file
 
 echo "[next] Opening Claude... (working dir: $(pwd))"
 claude

@@ -40,12 +40,8 @@ if "127.0.0.1" in base_url or "localhost" in base_url:
         sys.exit(1)
     print(f"[proxy] Proxy running at {base_url}")
 
-# Prepare env for Claude — Claude CLI uses ANTHROPIC_API_KEY only
-# Remove ANTHROPIC_AUTH_TOKEN to avoid "both set" conflict warning
+# Prepare env for Claude
 env = os.environ.copy()
-if auth_token:
-    env["ANTHROPIC_API_KEY"] = auth_token
-env.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 # Find claude binary
 claude_path = shutil.which("claude")
