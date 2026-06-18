@@ -18,9 +18,8 @@ Add-ToolBin "$AiEnv\tools\node" "node.exe" | Out-Null
 Add-ToolBin "$AiEnv\tools\rg"   "rg.exe"   | Out-Null
 Add-ToolBin "$AiEnv\tools\jq"   "jq.exe"   | Out-Null
 
-# npm global packages (claude CLI, etc.) install here — keep everything in ai-env
-$env:NPM_CONFIG_PREFIX = "$AiEnv\tools\npm-global"
-$env:PATH = "$AiEnv\tools\npm-global;$env:PATH"
+# Claude installed locally under tools\npm-global\node_modules
+$env:PATH = "$AiEnv\tools\npm-global\node_modules\.bin;$env:PATH"
 
 Write-Host ""
 Write-Host "Portable AI Terminal Ready"
@@ -47,5 +46,19 @@ foreach ($name in $tools.Keys) {
 
 Write-Host ""
 
+# Auto-install Claude CLI if missing
+if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+  Write-Host "  [setup] Claude CLI not found. Installing..."
+  $installDir = "$AiEnv\tools\npm-global"
+  if (-not (Test-Path $installDir)) { New-Item -ItemType Directory -Path $installDir | Out-Null }
+  Push-Location $installDir
+  & npm install @anthropic-ai/claude-code
+  Pop-Location
+  Write-Host ""
+}
+
 # Set working directory to the project folder (parent of ai-env)
 Set-Location $ProjectRoot
+
+# Launch Claude (proxy managed by launch_claude.py)
+& "$AiEnv\.venv\Scripts\python.exe" "$AiEnv\scripts\launch_claude.py"

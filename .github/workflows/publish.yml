@@ -32,6 +32,8 @@ jobs:
         run: |
           mkdir -p _site
           cp app/ai-env-guide.md _site/
+          cp app/README.md _site/windows-setup.md
+          cp app-mac/README.md _site/mac-setup.md 2>/dev/null || cp app/README.md _site/mac-setup.md
           cat > _site/index.html << 'ENDOFHTML'
           <!DOCTYPE html>
           <html lang="en">
@@ -43,11 +45,9 @@ jobs:
               body{font-family:system-ui,sans-serif;max-width:640px;margin:60px auto;padding:0 24px;color:#24292f}
               h1{font-size:1.8em;margin-bottom:.4em}
               .sub{color:#57606a;margin-bottom:2em}
-              .dl{display:flex;gap:12px;margin-bottom:2.5em}
-              .btn{padding:10px 22px;background:#0969da;color:#fff;text-decoration:none;border-radius:6px;font-weight:500}
-              .btn:hover{background:#0860ca}
               h2{font-size:.8em;text-transform:uppercase;letter-spacing:.06em;color:#57606a;margin:1.5em 0 .5em}
               pre{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:14px;overflow-x:auto;font-size:.85em;line-height:1.6}
+              .links{margin-top:.6em;font-size:.9em}
               footer{margin-top:3em;padding-top:1em;border-top:1px solid #d0d7de;font-size:.85em;color:#57606a}
               a{color:#0969da;text-decoration:none}
             </style>
@@ -56,22 +56,19 @@ jobs:
             <h1>Portable AI Terminal</h1>
             <p class="sub">Claude Code environment &middot; No admin rights &middot; No system installation</p>
 
-            <div class="dl">
-              <a class="btn" href="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env.zip">&#11015; Windows</a>
-              <a class="btn" href="https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip">&#11015; macOS</a>
-            </div>
-
             <h2>Windows</h2>
             <pre>mkdir ai-env &amp;&amp; cd ai-env
           curl -L -o env.zip https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env.zip
           tar -xf env.zip &amp;&amp; cd ..
           ai-env\init.bat</pre>
+            <p class="links"><a href="windows-setup.md">Windows 完整安裝說明</a></p>
 
             <h2>macOS</h2>
             <pre>mkdir ai-env &amp;&amp; cd ai-env
           curl -L -o env.zip https://github.com/kennethtu999/portable_ai_environment/releases/latest/download/portable_claude_env_mac.zip
           tar -xf env.zip &amp;&amp; cd ..
           ai-env/init.sh</pre>
+            <p class="links"><a href="mac-setup.md">macOS 完整安裝說明</a></p>
 
             <footer>
               <a href="ai-env-guide.md">AI Guide</a> &nbsp;&middot;&nbsp;
