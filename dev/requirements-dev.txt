@@ -1,0 +1,5 @@
+pytest
+pytest-mock
+markitdown[all]
+anthropic
+python-dotenv

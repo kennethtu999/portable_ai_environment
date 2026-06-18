@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip -q
+          pip install -r dev/requirements-dev.txt
+
+      - name: Run unit tests
+        run: pytest dev/tests/test_convert_docs.py dev/tests/test_proxy_parse.py dev/tests/test_setup_env.py -v

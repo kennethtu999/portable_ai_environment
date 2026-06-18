@@ -61,6 +61,22 @@ ai-env/.venv/bin/python <script>
 | rg     | system rg        | `brew install ripgrep`      |
 | jq     | system jq        | `brew install jq`           |
 
+## Document Conversion
+
+Convert documents (docx, xlsx, pdf, pptx, html, csv) to Markdown:
+
+```bash
+ai-env/.venv/bin/python ai-env/scripts/convert_docs.py <file_or_dir>
+```
+
+| Behaviour | Detail |
+|-----------|--------|
+| Output | `md-doc/` under project root |
+| Images | Extracted as separate files in `md-doc/<stem>/` |
+| Skip | Files with unchanged hash are skipped automatically |
+| State | `ai-env/ai-state/convert_state.json` |
+| Chunking | Files > 100 KB split by chapter headings; fallback to size |
+
 ## Version Upgrades
 
 To upgrade portable Node.js, update `NODE_VERSION` in `ai-env/init.sh` and re-run it.
