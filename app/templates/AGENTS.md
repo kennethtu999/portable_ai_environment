@@ -39,6 +39,21 @@
 - `impl.md`：implement 階段使用 (含執行中之暫時觀察)。
 - `backlog.yaml`：本次不處理之追蹤事項。
 
+## 4.2 Telemetry Contract (數據回報契約)
+- **日誌隔離原則**：任務結束（無論成功或失敗）或推進至 `implement` 最終階段時，Agent **嚴禁**直接修改 Topic 檔案本體，必須將本次引用Topic成效獨立輸出至專屬度量目錄。
+- **輸出路徑**：`ai-doc/metrics/raw/issue_{no}.yaml`
+- **強制輸出 schema**：必須使用標準 YAML 格式，結構如下：
+  ```yaml
+  issue_no: {no}
+  timestamp: "YYYY-MM-DDTHH:mm:ssZ"
+  final_status: "success" # 可選值: success (驗證通過) | failed (卡關/出錯)
+  tracked_topics:
+    - topic_name: "topic_writing_rule"
+      retrieved: true  # 是否有被檢索載入 context
+      selected: true   # 是否有實質採用其規則
+      execution_result: "passed" # 可選值: passed | violated | unverified
+  ```
+
 ## 5. Global Data Standards (全局資料標準)
 - **[YAML 1.2 Spec]**：處理所有資料結構僅允許標準 Parser 讀寫；執行檔案操作前強制進行路徑拼接 (base_path + 相對路徑)。
 - **[Dense Markdown]**：Logs、清單、高濃度資訊優先採用緊密格式；內聯 code、多連結一行呈現；禁用於需詳細說明之文件。
@@ -50,3 +65,4 @@
 - **Active Memory**：入口為 `ai-doc/MEMORY.md`。
 - **Topic Files**：承接單一主題重用細節；僅允許寫入具 codebase/文件/測試支撐之已驗證規則。
 - **History Files**：僅作 traceability 來源，嚴禁作為正式知識入口。
+- **[Topic 價值評估機制]**：系統以「實質轉換率 (CVR)」及「時間衰減」作為 Topic 檢索權重基準，由背景服務統一聚合 → 見 4.2 Telemetry Contract。
