@@ -61,8 +61,10 @@ fi
 
 # ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL already loaded from env file
 
-# Auto-install Claude CLI if missing (local, no -g)
-if ! command -v claude &>/dev/null; then
+CLAUDE_BIN="$AIENV_DIR/tools/npm-global/node_modules/.bin/claude"
+
+# Auto-install Claude CLI locally if not already installed under tools/
+if [ ! -f "$CLAUDE_BIN" ]; then
   echo "[setup] Claude CLI not found. Installing..."
   mkdir -p "$AIENV_DIR/tools/npm-global"
   cd "$AIENV_DIR/tools/npm-global"
@@ -71,8 +73,6 @@ if ! command -v claude &>/dev/null; then
   cd - > /dev/null
   echo ""
 fi
-
-CLAUDE_BIN="$AIENV_DIR/tools/npm-global/node_modules/.bin/claude"
 echo "[next] Opening Claude... (working dir: $(pwd))"
 "$CLAUDE_BIN"
 
