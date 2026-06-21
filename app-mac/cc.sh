@@ -63,15 +63,19 @@ fi
 
 CLAUDE_BIN="$AIENV_DIR/tools/npm-global/node_modules/.bin/claude"
 
-# Auto-install Claude CLI locally if not already installed under tools/
+# Resolve claude binary: local install > system PATH > fresh install
 if [ ! -f "$CLAUDE_BIN" ]; then
-  echo "[setup] Claude CLI not found. Installing..."
-  mkdir -p "$AIENV_DIR/tools/npm-global"
-  cd "$AIENV_DIR/tools/npm-global"
-  npm install @anthropic-ai/claude-code
-  node node_modules/@anthropic-ai/claude-code/install.cjs
-  cd - > /dev/null
-  echo ""
+  if command -v claude &>/dev/null; then
+    CLAUDE_BIN=$(command -v claude)
+  else
+    echo "[setup] Claude CLI not found. Installing..."
+    mkdir -p "$AIENV_DIR/tools/npm-global"
+    cd "$AIENV_DIR/tools/npm-global"
+    npm install @anthropic-ai/claude-code
+    node node_modules/@anthropic-ai/claude-code/install.cjs
+    cd - > /dev/null
+    echo ""
+  fi
 fi
 echo "[next] Opening Claude... (working dir: $(pwd))"
 "$CLAUDE_BIN"
