@@ -20,11 +20,17 @@
     footer{margin-top:3em;padding-top:1em;border-top:1px solid #d0d7de;font-size:.85em;color:#57606a}
     a{color:#0969da;text-decoration:none}
     .platform{color:#57606a;font-size:.82em;margin-left:.4em}
+    .version-badge{display:inline-flex;align-items:center;gap:.4em;background:#f6f8fa;border:1px solid #d0d7de;border-radius:20px;padding:3px 12px;font-size:.82em;color:#57606a;margin-bottom:2em}
+    .version-badge .dot{width:7px;height:7px;background:#3fb950;border-radius:50%;flex-shrink:0}
   </style>
 </head>
 <body>
   <h1>Portable AI Terminal</h1>
   <p class="sub">Claude Code 環境 &middot; 免系統安裝 &middot; 免管理員權限</p>
+  <div class="version-badge" id="version-badge">
+    <span class="dot"></span>
+    <span id="version-text">載入版本資訊中…</span>
+  </div>
 
   <!-- Prerequisites -->
   <div class="step">
@@ -116,5 +122,24 @@ Gateway host []: <b>https://your-api-gateway.example.com/path</b></pre>
     <a href="ai-env-guide.md">AI Guide</a> &nbsp;&middot;&nbsp;
     <a href="https://github.com/kennethtu999/portable_ai_environment">GitHub</a>
   </footer>
+  <script>
+    fetch('https://api.github.com/repos/kennethtu999/portable_ai_environment/releases/latest')
+      .then(r => r.json())
+      .then(data => {
+        const d = new Date(data.published_at);
+        const dateStr = d.toISOString().slice(0, 10);
+        const relName = data.name || data.tag_name;
+        document.getElementById('version-text').textContent = '最新版本：' + relName + '　更新於 ' + dateStr;
+        const link = document.createElement('a');
+        link.href = data.html_url;
+        link.target = '_blank';
+        link.style.cssText = 'margin-left:.4em;color:#0969da;font-size:.9em';
+        link.textContent = 'Release Notes';
+        document.getElementById('version-badge').appendChild(link);
+      })
+      .catch(() => {
+        document.getElementById('version-text').textContent = '版本資訊暫時無法取得';
+      });
+  </script>
 </body>
 </html>
